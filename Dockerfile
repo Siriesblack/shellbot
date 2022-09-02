@@ -37,13 +37,6 @@ RUN apt-get update \
     && apt install /tmp/megacmd.deb -y --allow-remove-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/megacmd.*
-
-# add mkvtoolnix
-RUN wget -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add - && \
-    wget -qO - https://ftp-master.debian.org/keys/archive-key-10.asc | apt-key add -
-RUN sh -c 'echo "deb https://mkvtoolnix.download/debian/ buster main" >> /etc/apt/sources.list.d/bunkus.org.list' && \
-    sh -c 'echo deb http://deb.debian.org/debian buster main contrib non-free | tee -a /etc/apt/sources.list' && apt update && apt install -y mkvtoolnix
-
 #gdrive setupz
 RUN wget -P /tmp https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf /tmp/go1.17.1.linux-amd64.tar.gz
@@ -56,31 +49,11 @@ RUN echo "KGdkcml2ZSB1cGxvYWQgIiQxIikgMj4gL2Rldi9udWxsIHwgZ3JlcCAtb1AgJyg/PD1VcG
 chmod +x /usr/local/bin/gup
 RUN wget -P /usr/src/app/.gdrive/ https://raw.githubusercontent.com/bowchaw/mkoin/bond2/.gdrive/token_v2.json
 
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-# rclone and gclone
-RUN curl https://rclone.org/install.sh | bash
-
-#install rmega
-RUN gem install rmega
-
-# Copies config(if it exists)
+#Rclone
+RUN curl https://rclone.org/install.sh | bash 
+  # setup workdir
+WORKDIR /bot
 COPY . .
-
-# Install requirements and start the bot
 RUN npm install
+CMD ["bash", "start.sh"]
 
-#install requirements
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
-
-# setup workdir
-
-RUN dpkg --add-architecture i386
-RUN apt-get update
-RUN apt-get -y dist-upgrade
-
-CMD ["node", "server"]
