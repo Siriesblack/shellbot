@@ -1,32 +1,48 @@
-FROM lzzy12/mega-sdk-python:latest
+FROM node:14
 
-# Install all the required packages
-WORKDIR /usr/src/app
-RUN chmod 777 /usr/src/app
-RUN apt-get -qq update
-RUN apt-get -qq install -y aria2 python3 python3-pip \
-    git bash build-essential curl wget \
-    nodejs npm aria2 p7zip-full zip unzip qbittorrent-nox ruby python-minimal python-pip locales pv jq ffmpeg mediainfo
+RUN dpkg --add-architecture i386
+RUN apt-get update
+RUN apt-get -y dist-upgrade
+RUN apt-get update &&  apt-get install -y  curl lsb-release
+RUN apt-get update \
+    && apt-get -y install \
+    --no-install-recommends \
+    wget \
+    mediainfo \
+    neofetch \
+    jq \
+    aria2 \
+    golang \
+    python3 \
+    python3-pip \
+    p7zip-full \
+    make \
+    nginx \
+    git \
+    gcc \
+    g++ \
+    unzip \
+    busybox \
+    build-essential \
+    gnupg2 \
+    openssl \
+    ffmpeg \
+    youtube-dl \
+    zip \
+    ca-certificates \
+    && update-ca-certificates \
+    && curl  \
+    https://mega.nz/linux/MEGAsync/Debian_9.0/i386/megacmd-Debian_9.0_i386.deb \
+    --output /tmp/megacmd.deb \
+    && apt install /tmp/megacmd.deb -y --allow-remove-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/megacmd.*
+
 # add mkvtoolnix
 RUN wget -q -O - https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt | apt-key add - && \
     wget -qO - https://ftp-master.debian.org/keys/archive-key-10.asc | apt-key add -
 RUN sh -c 'echo "deb https://mkvtoolnix.download/debian/ buster main" >> /etc/apt/sources.list.d/bunkus.org.list' && \
     sh -c 'echo deb http://deb.debian.org/debian buster main contrib non-free | tee -a /etc/apt/sources.list' && apt update && apt install -y mkvtoolnix
-
-# add mega cmd
-RUN apt-get update \
-    && apt-get -y install \
-    --no-install-recommends \
-    curl \
-    gnupg2 \
-    ca-certificates \
-    && update-ca-certificates \
-    && curl  \
-    https://mega.nz/linux/MEGAsync/xUbuntu_18.04/amd64/megacmd-xUbuntu_18.04_amd64.deb \
-    --output /tmp/megacmd.deb \
-    && apt install /tmp/megacmd.deb -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/megacmd.*
 
 #gdrive setupz
 RUN wget -P /tmp https://dl.google.com/go/go1.17.1.linux-amd64.tar.gz
